@@ -144,9 +144,8 @@
 
 ## 13) Current implementation status
 
-Phase 1 foundation is now implemented in code:
+Phases 1, 2, and 3 are implemented in code:
 
-- Player movement (virtual joystick + keyboard fallback).
-- Enemy spawning and chase behavior.
-- Starter auto-weapon targeting and damage loop.
-- XP gem drops, XP collection, level thresholds, and level-up pause panel.
+- Phase 1: movement, spawn/chase, starter combat loop, XP collection, level-up pause panel.
+- Phase 2: 8-weapon-ready system, rarity-weighted upgrades, elite/boss pacing, chest rewards/evolution hooks.
+- Phase 3: meta progression nodes, unlock conditions, run-end summary, HUD polish, audio/haptic feedback routing.

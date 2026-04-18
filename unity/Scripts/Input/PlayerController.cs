@@ -3,8 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float fallbackMoveSpeed = 5f;
     [SerializeField] private VirtualJoystick virtualJoystick;
+    [SerializeField] private PlayerStats playerStats;
 
     private Vector2 moveInput;
     private Rigidbody2D rb;
@@ -34,6 +35,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        var moveSpeed = playerStats != null ? playerStats.CurrentMoveSpeed : fallbackMoveSpeed;
         rb.velocity = moveInput * moveSpeed;
     }
 }

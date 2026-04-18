@@ -16,31 +16,20 @@ Why this stack:
 ### Core runtime systems
 
 - `GameStateManager` – run states (menu, running, paused, level-up, game-over).
-- `WaveDirector` – time-based spawn budget and enemy composition.
-- `EnemySpawner` – pulls enemies from pools, applies spawn rules.
-- `PlayerController` – joystick-driven movement.
-- `WeaponSystem` – auto-fire timing + target acquisition.
-- `UpgradeSystem` – weighted random options and application.
+- `EnemySpawner` – normal/elite/boss spawn pacing.
+- `PlayerController` – joystick-driven movement with stat scaling.
+- `WeaponSystem` – multi-weapon auto-fire patterns and evolution.
+- `UpgradeSystem` – weighted random options with rarity tiers.
 - `XPSystem` – XP pickup, thresholds, level events.
-- `LootSystem` – chest and currency drops.
-- `MetaProgressionSystem` – persistent upgrades/unlocks.
+- `ChestRewardSystem` – chest flow and evolution reward checks.
+- `MetaProgressionSystem` – persistent progression nodes and run-end banking.
+- `RunSummaryManager` – end-of-run stats for UX + unlock pipeline.
 
 ### Data-driven assets (ScriptableObjects)
 
-- Hero definitions
-- Weapon definitions
-- Passive upgrade definitions
-- Enemy definitions
-- Wave table definitions
-- Drop tables
-
-### Performance strategy
-
-- Aggressive pooling for all frequently spawned entities.
-- Avoid per-frame allocations (`GC.Alloc` spikes).
-- Batch pathing updates and distance checks.
-- Use squared distance checks where possible.
-- Cap simultaneous active enemies by device tier profile.
+- Weapon definitions (8 baseline weapons)
+- Upgrade definitions (12 baseline upgrades)
+- Enemy prefabs separated by tier (normal/elite/boss)
 
 ## Suggested folder structure
 
@@ -52,43 +41,39 @@ Assets/
     Enemies/
     Progression/
     Input/
+    Loot/
     UI/
-  Data/
-    Heroes/
-    Weapons/
-    Upgrades/
-    Enemies/
-    Waves/
-  Prefabs/
-  Art/
-  Audio/
+    Feedback/
+    Meta/
 ```
 
-## Build plan (12 weeks)
+## Build plan status
 
-### Phase 1 (Weeks 1-2): Playable foundation (COMPLETED IN REPO)
+### Phase 1 (Weeks 1-2): Playable foundation ✅ Complete
 
-Implemented scripts now cover all phase-1 goals:
+- Player movement with joystick.
+- Enemy spawn + chase behavior.
+- One weapon auto-fire.
+- XP drops + level-up popup.
 
-- Player movement with joystick (`VirtualJoystick` + `PlayerController`).
-- Enemy spawn + chase behavior (`EnemySpawner`, `EnemyChase`).
-- One weapon auto-fire (`AutoWeapon`).
-- XP drops + level-up popup (`EnemyDropXp`, `XPGem`, `XPCollector`, `XPSystem`, `LevelUpPanel`).
-- Run-state flow with pause-on-level-up (`GameStateManager`, `BootstrapRunState`).
+### Phase 2 (Weeks 3-5): Core depth ✅ Complete
 
-### Phase 2 (Weeks 3-5): Core depth
+Implemented in code:
 
-- Add 6–8 weapons.
-- Add 10+ upgrades and rarity system.
-- Implement elite and boss logic.
-- Add chest rewards and evolution mechanic.
+- 8-weapon architecture and runtime leveling (`WeaponSystem` + `WeaponCatalog` + `WeaponDefinition`).
+- Rarity-based upgrades with 3 choices (`UpgradeSystem`, `UpgradeCatalog`, `UpgradeDefinition`, `LevelUpPanel`).
+- Elite and boss pacing in `EnemySpawner`.
+- Chest rewards and evolution path via `ChestRewardSystem` + `ChestPickup`.
 
-### Phase 3 (Weeks 6-8): Meta and UX
+### Phase 3 (Weeks 6-8): Meta and UX ✅ Complete
 
-- Permanent progression tree.
-- Unlock flows and run-end summary.
-- Better HUD readability and feedback.
-- Audio pass + haptics.
+Implemented in code:
+
+- Persistent progression tree with spendable run currency (`MetaProgressionSystem`).
+- Unlock flow using run summary thresholds (`UnlockSystem`).
+- Run-end summary panel and tracked stats (`RunSummaryManager`, `RunSummaryPanel`).
+- Improved HUD presenter (`HudPresenter`) and progression visuals (`XPBarPresenter`).
+- Audio + haptic feedback hooks (`AudioFeedbackSystem`, `HapticFeedbackSystem`, `FeedbackEventRouter`).
 
 ### Phase 4 (Weeks 9-10): Mobile optimization
 
@@ -104,41 +89,41 @@ Implemented scripts now cover all phase-1 goals:
 - A/B tests for upgrade offer frequency.
 - Store assets and release checklist.
 
-## Phase 1 wiring checklist (scene setup)
+## Scene wiring checklist (Phase 1–3)
 
-1. Create `GameSystems` object and attach `GameStateManager` + `BootstrapRunState`.
-2. Player object:
-   - Tag as `Player`.
-   - Add `Rigidbody2D`, collider, `Health`, `PlayerDeathHandler`, `PlayerController`, `AutoWeapon`, `XPCollector`.
-3. UI canvas:
-   - Add joystick background/handle and `VirtualJoystick`.
-   - Add XP slider and `XPBarPresenter`.
-   - Add level-up panel and `LevelUpPanel` with 3 option buttons.
-4. Enemy prefab:
-   - Add collider, `Rigidbody2D`, `Health`, `EnemyChase`, `EnemyDropXp`.
-5. XP gem prefab:
-   - Add trigger collider + `XPGem`.
-6. Spawner object:
-   - Add `EnemySpawner`, assign enemy prefab list and player transform.
-7. XP system object:
-   - Add `XPSystem`; connect to `XPCollector`, `XPBarPresenter`, and `LevelUpPanel`.
-
-## Telemetry (minimum viable analytics)
-
-Track at least:
-
-- Session start/end.
-- Run duration.
-- Cause of death.
-- Chosen upgrades distribution.
-- Retention D1/D3/D7.
-- Ad revive usage.
-
-## Technical risks and mitigations
-
-1. **Late-game frame drops**  
-   Mitigate with hard entity caps, pooling, and simplified VFX at density thresholds.
-2. **Build balance collapse**  
-   Mitigate via simulation tools and telemetry-driven patch cadence.
-3. **UI overwhelm on small screens**  
-   Mitigate with hierarchy reduction and progressive disclosure.
+1. `GameSystems` object:
+   - `GameStateManager`
+   - `BootstrapRunState`
+   - `RunSummaryManager`
+   - `MetaProgressionSystem`
+   - `UnlockSystem`
+2. Player object (`tag: Player`):
+   - `Rigidbody2D` + collider
+   - `PlayerStats`
+   - `Health` (`usePlayerStatsAsMaxHealth = true`)
+   - `PlayerController`
+   - `WeaponSystem`
+   - `StarterLoadout`
+   - `XPCollector` (circle trigger)
+   - `PlayerDeathHandler`
+3. Catalog objects:
+   - `WeaponCatalog`
+   - `UpgradeCatalog`
+   - `Phase23ContentBootstrap` (run context menu `Seed Catalogs`)
+4. Enemy setup:
+   - Normal/elite/boss prefabs each include `Health`, `EnemyMetadata`, `EnemyChase`, `EnemyDropXp`
+   - Spawner includes `EnemySpawner` and prefab references
+5. Loot setup:
+   - XP gem prefab with `XPGem`
+   - Gold pickup prefab with `GoldPickup`
+   - Chest prefab with `ChestPickup`
+   - One object with `ChestRewardSystem`
+6. UI setup:
+   - `LevelUpPanel` + three `UpgradeOptionView` buttons
+   - XP slider + `XPBarPresenter`
+   - HUD labels + `HudPresenter`
+   - Run-end panel + `RunSummaryPanel`
+7. Feedback setup:
+   - `AudioFeedbackSystem`
+   - `HapticFeedbackSystem`
+   - `FeedbackEventRouter`

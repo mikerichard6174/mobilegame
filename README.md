@@ -1,35 +1,37 @@
 # Eclipse Swarm (Mobile Survivors-Like)
 
-A starter design and implementation kit for building a mobile game inspired by the *survivors-like* genre (arena survival, auto-attacks, escalating enemy waves, and build-defining upgrades).
+A starter Unity kit for building a mobile survivors-like game with a completed **Phase 1 + 2 + 3** foundation.
 
-> Goal: go from idea to a playable **Phase 1 vertical slice** quickly with a mobile-first setup.
+## Included systems
 
-## What is included
+- Core run loop and game-state flow.
+- Mobile joystick movement and scalable player stats.
+- Multi-weapon combat architecture (8-weapon-ready) with evolution hooks.
+- Upgrade draft system (3 options, weighted rarities, 12 baseline upgrades).
+- Elite/boss spawn pacing.
+- Chest rewards, gold economy, and run-summary tracking.
+- Persistent meta progression nodes and unlock logic.
+- HUD, run-end summary panel, audio cues, and haptic hooks.
 
-- Product vision and design pillars.
-- A complete gameplay loop and progression model.
-- Mobile-specific controls, performance, and monetization considerations.
-- Unity-oriented architecture notes and C# starter scripts.
-- A completed **Phase 1** systems pass (movement, spawn/chase, auto-fire, XP and level-up flow).
+## Project contents
 
-## Contents
+- `docs/game-design.md` – product/experience design reference.
+- `docs/technical-roadmap.md` – implementation status + scene wiring for phases 1–3.
+- `unity/Scripts/` – C# runtime systems.
 
-- `docs/game-design.md` – Core game design document (GDD-lite).
-- `docs/technical-roadmap.md` – Implementation architecture + phased plan + scene wiring checklist.
-- `unity/Scripts/` – Unity scripts for runnable phase-1 foundation.
+## Quick start
 
-## Quick start (Unity)
+1. Open Unity 2D URP project.
+2. Copy `unity/Scripts/` into `Assets/Scripts/`.
+3. Follow the scene wiring checklist in `docs/technical-roadmap.md`.
+4. Seed weapon/upgrade catalogs via `Phase23ContentBootstrap` context menu.
+5. Press play to verify:
+   - Start with a weapon and auto-combat.
+   - Level-up pauses and offers 3 upgrades.
+   - Elite/boss enemies appear over time.
+   - Chests grant upgrades/evolution opportunities.
+   - Run-over shows summary and applies meta rewards.
 
-1. Create a fresh Unity 2D URP project.
-2. Copy the `unity/Scripts/` folder into `Assets/Scripts/`.
-3. Follow the **Phase 1 wiring checklist** in `docs/technical-roadmap.md`.
-4. Hit play and validate the loop:
-   - Move with joystick/keyboard.
-   - Enemies spawn and chase.
-   - Weapon auto-attacks nearest enemy.
-   - Kills drop XP gems.
-   - XP levels trigger a pause + level-up panel.
+## Important note
 
-## Important creative/legal note
-
-Build your own identity: unique art direction, lore, progression systems, balancing, and names. Use genre conventions, not copied assets/content.
+Build unique content and identity (art, lore, balance, naming). Use genre conventions, not copied assets/content.

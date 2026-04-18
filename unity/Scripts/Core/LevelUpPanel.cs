@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class LevelUpPanel : MonoBehaviour
 {
     [SerializeField] private XPSystem xpSystem;
+    [SerializeField] private UpgradeSystem upgradeSystem;
     [SerializeField] private GameObject panelRoot;
-    [SerializeField] private List<Button> optionButtons;
+    [SerializeField] private List<UpgradeOptionView> optionViews;
 
     private void Awake()
     {
@@ -29,6 +29,20 @@ public class LevelUpPanel : MonoBehaviour
         }
     }
 
+    public void SelectUpgrade(UpgradeDefinition upgrade)
+    {
+        if (upgradeSystem != null)
+        {
+            upgradeSystem.ApplyUpgrade(upgrade);
+        }
+
+        SetVisible(false);
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.Resume();
+        }
+    }
+
     private void HandleLevelUpTriggered(int level)
     {
         if (GameStateManager.Instance != null)
@@ -38,20 +52,12 @@ public class LevelUpPanel : MonoBehaviour
 
         SetVisible(true);
 
-        foreach (var optionButton in optionButtons)
-        {
-            optionButton.onClick.RemoveAllListeners();
-            optionButton.onClick.AddListener(SelectOption);
-        }
-    }
+        var options = upgradeSystem != null ? upgradeSystem.GenerateOptions(3) : new List<UpgradeDefinition>();
 
-    private void SelectOption()
-    {
-        SetVisible(false);
-
-        if (GameStateManager.Instance != null)
+        for (var i = 0; i < optionViews.Count; i++)
         {
-            GameStateManager.Instance.Resume();
+            var option = i < options.Count ? options[i] : null;
+            optionViews[i].Bind(this, option);
         }
     }
 

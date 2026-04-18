@@ -5,12 +5,20 @@ public class EnemyDropXp : MonoBehaviour
 {
     [SerializeField] private GameObject xpGemPrefab;
     [SerializeField] private int xpValue = 1;
+    [SerializeField] private GameObject goldPickupPrefab;
+    [SerializeField] private float goldDropChance = 0.35f;
+    [SerializeField] private GameObject chestPickupPrefab;
+    [SerializeField] private float chestDropChance = 0.05f;
 
     private Health health;
+    private EnemyMetadata metadata;
+    private RunSummaryManager runSummaryManager;
 
     private void Awake()
     {
         health = GetComponent<Health>();
+        metadata = GetComponent<EnemyMetadata>();
+        runSummaryManager = FindObjectOfType<RunSummaryManager>();
     }
 
     private void OnEnable()
@@ -31,16 +39,27 @@ public class EnemyDropXp : MonoBehaviour
 
     private void HandleDeath(Health deadHealth)
     {
-        if (xpGemPrefab == null)
+        if (xpGemPrefab != null)
         {
-            return;
+            var gem = Instantiate(xpGemPrefab, transform.position, Quaternion.identity);
+            var xpGem = gem.GetComponent<XPGem>();
+            if (xpGem != null)
+            {
+                xpGem.SetValue(xpValue);
+            }
         }
 
-        var gem = Instantiate(xpGemPrefab, transform.position, Quaternion.identity);
-        var xpGem = gem.GetComponent<XPGem>();
-        if (xpGem != null)
+        if (goldPickupPrefab != null && Random.value <= goldDropChance)
         {
-            xpGem.SetValue(xpValue);
+            Instantiate(goldPickupPrefab, transform.position, Quaternion.identity);
         }
+
+        if (chestPickupPrefab != null && Random.value <= chestDropChance)
+        {
+            Instantiate(chestPickupPrefab, transform.position, Quaternion.identity);
+        }
+
+        var tier = metadata != null ? metadata.Tier : EnemyTier.Normal;
+        runSummaryManager?.RegisterKill(tier);
     }
 }
